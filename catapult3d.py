@@ -395,6 +395,19 @@ class Viewer(object):
         self.clock = pygame.time.Clock()
         self.fps = fps
         self.playtime = 0.0
+        # -- menu --
+        li = ["back"]
+        for i in pygame.display.list_modes():
+            # li is something like "(800, 600)"
+            pair = str(i)
+            comma = pair.find(",")
+            x = pair[1:comma]
+            y = pair[comma+2:-1]
+            li.append(str(x)+"x"+str(y))
+        Viewer.menu["resolution"] = li
+        self.set_resolution()
+        
+        
         # ------ background images ------
         #self.backgroundfilenames = [] # every .jpg file in folder 'data'
         #try:
@@ -420,6 +433,15 @@ class Viewer(object):
         #Viewer.sounds["click"]=  pygame.mixer.Sound(
         #         os.path.join("data", "panzersound1.wav"))
         return
+    
+    
+    def set_resolution(self):
+        if Viewer.fullscreen:
+             self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF|pygame.FULLSCREEN)
+        else:
+             self.screen = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF)
+        self.loadbackground()
+    
     
     def loadbackground(self):
         
