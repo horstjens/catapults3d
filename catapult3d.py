@@ -529,9 +529,7 @@ class Viewer(object):
                         if Viewer.name == "resolution":
                             # text is something like 800x600
                             t = text.find("x")
-                            if t == -1:
-                                Flytext(x=100,y=100, text="bad resolution, no x found in : " + text)
-                            else:
+                            if t != -1:
                                 x = int(text[:t])
                                 y = int(text[t+1:])
                                 Viewer.width = x
