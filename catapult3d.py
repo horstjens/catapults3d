@@ -1,6 +1,6 @@
 """
-author: Horst JENS
-email: horstjens@gmail.com
+author: Mohamed and Abdullah
+email: moha.alsaby@gmail.com 
 contact: see http://spielend-programmieren.at/de:kontakt
 license: gpl, see http://www.gnu.org/licenses/gpl-3.0.de.html
 download: https://github.com/horstjens/catapults3d
