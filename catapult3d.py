@@ -1,6 +1,6 @@
 """
-author: Mohamed and Abdullah
-email: moha.alsaby@gmail.com 
+author: Horst JENS
+email: horstjens@gmail.com
 contact: see http://spielend-programmieren.at/de:kontakt
 license: gpl, see http://www.gnu.org/licenses/gpl-3.0.de.html
 download: https://github.com/horstjens/catapults3d
@@ -339,6 +339,31 @@ class Explosion():
                   color=(red,green,blue), kill_on_edge = True)
 
 
+class World():
+    
+    tiles_x = 140
+    tiles_y = 90   
+    
+    
+    def __init__(self):
+        self.terrain = []
+        h = 100
+        for y in range(self.tiles_y):
+            line = []
+            for x in range(self.tiles_x):
+                height = random.randint(0,255)
+                height = max(0,height)
+                height = min(255,height)
+                line.append(height)
+            self.terrain.append(line)
+            
+   
+            
+
+        
+    
+    
+
 class Viewer(object):
     width = 0
     height = 0
@@ -428,6 +453,9 @@ class Viewer(object):
         self.prepare_sprites()
         self.loadbackground()
         self.load_sounds()
+        self.world = World()
+        #print(self.world)
+        
         
     def load_sounds(self):
         #Viewer.sounds["click"]=  pygame.mixer.Sound(
@@ -451,6 +479,13 @@ class Viewer(object):
         self.background = pygame.transform.scale(self.background,
                           (Viewer.width,Viewer.height))
         self.background.convert()
+        
+    
+    def paint_world(self):
+        for y, line in enumerate(self.world.terrain):
+            for x, tile in enumerate(line):
+                h = self.world.terrain[y][x]
+                pygame.draw.rect(self.screen,(h,h,h), (x*10, y*10,10,10))
         
     
     def load_sprites(self):
@@ -549,6 +584,7 @@ class Viewer(object):
                         
             # ------delete everything on screen-------
             self.screen.blit(self.background, (0, 0))
+            
             
          
             # -------------- UPDATE all sprites -------             
@@ -652,6 +688,8 @@ class Viewer(object):
             # =========== delete everything on screen ==============
             self.screen.blit(self.background, (0, 0))
                        
+            
+            self.paint_world()
                        
             # write text below sprites
             write(self.screen, "FPS: {:8.3}".format(
