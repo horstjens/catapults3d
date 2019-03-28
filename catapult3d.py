@@ -286,7 +286,27 @@ class VectorSprite(pygame.sprite.Sprite):
             elif self.warp_on_edge:
                 self.pos.y = 0
 
+class Catapult(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        self.kill_on_edge = False
+        self.survive_north = True
+        self.pos.y = -Viewer.height //2
+        self.pos.x = Viewer.width //2
+            
+    def create_image(self):
+        self.image = Viewer.images["Catapult1"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
 
+    def kill(self):
+        Explosion(posvector=self.pos, red=200, red_delta=25, minsparks=500, maxsparks=600, maxlifetime=7)
+        VectorSprite.kill(self)
+   
+   
+    def update(self,seconds):
+        VectorSprite.update(self,seconds)
+            
 class Flytext(VectorSprite):
     
     def _overwrite_parameters(self):
