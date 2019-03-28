@@ -211,6 +211,14 @@ class VectorSprite(pygame.sprite.Sprite):
         self.width = self.rect.width
         self.height = self.rect.height
 
+    def rotate_to(self, final_degree):
+        if final_degree < self.angle:
+            self.rotate(- self.turnspeed)
+        elif final_degree > self.angle:
+            self.rotate(self.turnspeed)
+        else:
+            return
+
     def rotate(self, by_degree):
         """rotates a sprite and changes it's angle by by_degree"""
         self.angle += by_degree
@@ -302,7 +310,8 @@ class Catapult(VectorSprite):
         self.pos.y = -Viewer.height //2
         self.pos.x = Viewer.width //2
         self.imagenames = ["catapult1"]
-        self.speed = 7    
+        self.speed = 7 
+        self.turnspeed = 10   
             
     def create_image(self):
         self.image=Viewer.images["catapult1"]
@@ -332,7 +341,14 @@ class Catapult(VectorSprite):
         dist =  target - self.pos
         dist.normalize_ip() # schrumpft ihn zur Länge 1
         dist *= self.speed
-        self.move = dist
+        
+        rightvector = pygame.math.Vector2(1,0)
+        angle = dist.angle_to(rightvector)
+        if self.angle == round(angle, 0) :
+            self.move = dist
+        else:
+            self.move = pygame.math.Vector2(0,0)
+            self.rotate_to(angle)
          
          
             
