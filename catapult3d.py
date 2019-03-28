@@ -12,6 +12,10 @@ import random
 import os
 
 
+def mouseVector():
+    return pygame.math.Vector2(pygame.mouse.get_pos()[0],
+                               - pygame.mouse.get_pos()[1])
+
 def randomize_color(color, delta=50):
     d=random.randint(-delta, delta)
     color = color + d
@@ -298,9 +302,7 @@ class Catapult(VectorSprite):
         self.pos.y = -Viewer.height //2
         self.pos.x = Viewer.width //2
         self.imagenames = ["catapult1"]
-        #for i in self.imagenames:
-        #    self.create_selected(i)
-            
+        self.speed = 7    
             
     def create_image(self):
         self.image=Viewer.images["catapult1"]
@@ -325,6 +327,14 @@ class Catapult(VectorSprite):
             self.select_image("catapult1_selected")
         else:
             self.select_image("catapult1")
+        # ---- go to mouse cursor ----
+        target = mouseVector()
+        dist =  target - self.pos
+        dist.normalize_ip() # schrumpft ihn zur Länge 1
+        dist *= self.speed
+        self.move = dist
+         
+         
             
 class Flytext(VectorSprite):
     
