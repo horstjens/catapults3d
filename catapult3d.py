@@ -115,6 +115,8 @@ class VectorSprite(pygame.sprite.Sprite):
             self._layer = self.layer
         if "static" not in kwargs:
             self.static = False
+        if "selected" not in kwargs:
+            self.selected = False
         if "pos" not in kwargs:
             self.pos = pygame.math.Vector2(random.randint(0, Viewer.width),-50)
         if "move" not in kwargs:
@@ -190,7 +192,9 @@ class VectorSprite(pygame.sprite.Sprite):
         if self.number in self.numbers:
            del VectorSprite.numbers[self.number] # remove Sprite from numbers dict
         pygame.sprite.Sprite.kill(self)
-
+    
+   
+    
     def create_image(self):
         if self.picture is not None:
             self.image = self.picture.copy()
@@ -293,11 +297,22 @@ class Catapult(VectorSprite):
         self.survive_north = True
         self.pos.y = -Viewer.height //2
         self.pos.x = Viewer.width //2
+        self.imagenames = ["catapult1"]
+        #for i in self.imagenames:
+        #    self.create_selected(i)
+            
             
     def create_image(self):
-        self.image = Viewer.images["Catapult1"]
+        self.image=Viewer.images["catapult1"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
+        
+    def select_image(self, name):
+        self.image = Viewer.images[name]
+        self.image0 = self.image.copy()
+        x,y = self.rect.center
+        self.rect = self.image.get_rect()
+        self.rect.center = x,y
 
     def kill(self):
         Explosion(posvector=self.pos, red=200, red_delta=25, minsparks=500, maxsparks=600, maxlifetime=7)
@@ -306,6 +321,10 @@ class Catapult(VectorSprite):
    
     def update(self,seconds):
         VectorSprite.update(self,seconds)
+        if self.selected:
+            self.select_image("catapult1_selected")
+        else:
+            self.select_image("catapult1")
             
 class Flytext(VectorSprite):
     
@@ -508,11 +527,22 @@ class Viewer(object):
                 pygame.draw.rect(self.screen,(h,h,h), (x*10, y*10,10,10))
         
     
+    def create_selected(self, original_name):
+        Viewer.images[original_name + "_selected"] = Viewer.images[original_name].copy()
+        # make green rectangle
+        img = Viewer.images[original_name + "_selected"]
+        pygame.draw.rect(img, (0,255,0),(0,0,img.get_rect().width,
+                                             img.get_rect().height),1)
+        img.set_colorkey((0,0,0))
+        img.convert_alpha()
+        Viewer.images[original_name + "_selected"] = img
+        
+    
     def load_sprites(self):
             print("loading sprites from 'data' folder....")
-            #Viewer.images["player1"]= pygame.image.load(
-            #     os.path.join("data", "player1.png")).convert_alpha()
-            
+            Viewer.images["catapult1"]= pygame.image.load(
+                 os.path.join("data", "catapultC1.png")).convert_alpha()
+            self.create_selected("catapult1")
             # --- scalieren ---
             #for name in Viewer.images:
             #    if name == "bossrocket":
@@ -644,7 +674,7 @@ class Viewer(object):
         
         running = True
         self.menu_run()
-        pygame.mouse.set_visible(False)
+        pygame.mouse.set_visible(True)
         oldleft, oldmiddle, oldright  = False, False, False
         while running:
             #pygame.display.set_caption("player1 hp: {} player2 hp: {}".format(
@@ -662,7 +692,9 @@ class Viewer(object):
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-   
+                    if event.key == pygame.K_c:
+                        # ---spawns a catapult ---
+                        Catapult(selected=True)
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
             # ------- movement keys for player1 -------
@@ -709,7 +741,7 @@ class Viewer(object):
             self.screen.blit(self.background, (0, 0))
                        
             
-            #self.paint_world()
+            ##self.paint_world()
                        
             # write text below sprites
             write(self.screen, "FPS: {:8.3}".format(
