@@ -709,7 +709,7 @@ class Viewer(object):
             self.screen.blit(self.background, (0, 0))
                        
             
-            self.paint_world()
+            #self.paint_world()
                        
             # write text below sprites
             write(self.screen, "FPS: {:8.3}".format(
