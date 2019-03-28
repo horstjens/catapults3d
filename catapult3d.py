@@ -11,11 +11,9 @@ import pygame
 import random
 import os
 
-
 def mouseVector():
     return pygame.math.Vector2(pygame.mouse.get_pos()[0],
                                - pygame.mouse.get_pos()[1])
-
 def randomize_color(color, delta=50):
     d=random.randint(-delta, delta)
     color = color + d
@@ -210,7 +208,7 @@ class VectorSprite(pygame.sprite.Sprite):
         self.rect= self.image.get_rect()
         self.width = self.rect.width
         self.height = self.rect.height
-
+    
     def rotate_to(self, final_degree):
         if final_degree < self.angle:
             self.rotate(- self.turnspeed)
@@ -218,7 +216,8 @@ class VectorSprite(pygame.sprite.Sprite):
             self.rotate(self.turnspeed)
         else:
             return
-
+        
+        
     def rotate(self, by_degree):
         """rotates a sprite and changes it's angle by by_degree"""
         self.angle += by_degree
@@ -307,14 +306,16 @@ class Catapult(VectorSprite):
     def _overwrite_parameters(self):
         self.kill_on_edge = False
         self.survive_north = True
-        self.pos.y = -Viewer.height //2
-        self.pos.x = Viewer.width //2
+        #self.pos.y = -Viewer.height //2
+        #self.pos.x = Viewer.width //2
+       
         self.imagenames = ["catapult1"]
-        self.speed = 7 
-        self.turnspeed = 10   
+        self.speed  = 7
+        self.turnspeed = 0.5
+            
             
     def create_image(self):
-        self.image=Viewer.images["catapult1"]
+        self.image=Viewer.images["catapult1_selected"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
         
@@ -332,26 +333,21 @@ class Catapult(VectorSprite):
    
     def update(self,seconds):
         VectorSprite.update(self,seconds)
-        if self.selected:
-            self.select_image("catapult1_selected")
-        else:
-            self.select_image("catapult1")
-        # ---- go to mouse cursor ----
+        # - - - - - - go to mouse cursor ------ #
         target = mouseVector()
-        dist =  target - self.pos
-        dist.normalize_ip() # schrumpft ihn zur Länge 1
-        dist *= self.speed
-        
-        rightvector = pygame.math.Vector2(1,0)
-        angle = dist.angle_to(rightvector)
-        if self.angle == round(angle, 0) :
-            self.move = dist
-        else:
-            self.move = pygame.math.Vector2(0,0)
-            self.rotate_to(angle)
-         
-         
-            
+        dist =target - self.pos
+        try:
+            dist.normalize_ip() #schrupmft ihn zur länge 1
+        except:
+            return
+        dist *= self.speed  
+        #rightvector = pygame.math.Vector2(1,0)
+        #angle = dist.angle_to(rightvector)
+        #if self.angle == round(angle, 0):
+        self.move = dist
+        #else:
+        #    self.move = pygame.math.Vector2(0,0)
+        #    self.rotate_to(angle*seconds)   
 class Flytext(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -720,7 +716,7 @@ class Viewer(object):
                         running = False
                     if event.key == pygame.K_c:
                         # ---spawns a catapult ---
-                        Catapult(selected=True)
+                        Catapult(selected=True, pos = mouseVector())
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
             # ------- movement keys for player1 -------
