@@ -232,6 +232,7 @@ class VectorSprite(pygame.sprite.Sprite):
         self.angle = degree
         oldcenter = self.rect.center
         self.image = pygame.transform.rotate(self.image0, self.angle)
+        self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = oldcenter
@@ -316,7 +317,10 @@ class Catapult(VectorSprite):
             
     def create_image(self):
         self.image=Viewer.images["catapult1_selected"]
+        
         self.image0 = self.image.copy()
+        self.image0.set_colorkey((0,0,0))
+        self.image0.convert_alpha()
         self.rect = self.image.get_rect()
         
     def select_image(self, name):
@@ -339,15 +343,21 @@ class Catapult(VectorSprite):
         try:
             dist.normalize_ip() #schrupmft ihn zur länge 1
         except:
+            print("i could not normalize", dist)
             return
         dist *= self.speed  
-        #rightvector = pygame.math.Vector2(1,0)
-        #angle = dist.angle_to(rightvector)
+        rightvector = pygame.math.Vector2(1,0)
+        angle = -dist.angle_to(rightvector)
+        #print(angle)
         #if self.angle == round(angle, 0):
         self.move = dist
+        self.set_angle(angle)
         #else:
         #    self.move = pygame.math.Vector2(0,0)
         #    self.rotate_to(angle*seconds)   
+
+
+
 class Flytext(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -376,6 +386,7 @@ class Spark(VectorSprite):
         pygame.draw.line(self.image, (r,g,b),
                           (5,5), (2,5), 1)
         self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
         self.rect= self.image.get_rect()
         self.image0 = self.image.copy()                          
         
@@ -561,6 +572,7 @@ class Viewer(object):
         
     
     def load_sprites(self):
+         """ all sprites that can rotate MUST look to the right. Edit Image files manually if necessary!"""
             print("loading sprites from 'data' folder....")
             Viewer.images["catapult1"]= pygame.image.load(
                  os.path.join("data", "catapultC1.png")).convert_alpha()
