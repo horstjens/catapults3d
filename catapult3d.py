@@ -232,7 +232,7 @@ class VectorSprite(pygame.sprite.Sprite):
         self.angle = degree
         oldcenter = self.rect.center
         self.image = pygame.transform.rotate(self.image0, self.angle)
-        self.image.set_colorkey((0,0,0))
+        #self.image.set_colorkey((0,0,0))
         self.image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = oldcenter
@@ -302,6 +302,40 @@ class VectorSprite(pygame.sprite.Sprite):
             elif self.warp_on_edge:
                 self.pos.y = 0
 
+class Ballista(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        self.speed = 3
+    
+    def create_image(self):
+        self.image=Viewer.images["ballista1"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
+    def update(self,seconds):
+        VectorSprite.update(self,seconds)
+        # - - - - - - go to mouse cursor ------ #
+        target = mouseVector()
+        dist =target - self.pos
+        try:
+            dist.normalize_ip() #schrupmft ihn zur länge 1
+        except:
+            print("i could not normalize", dist)
+            return
+        dist *= self.speed  
+        rightvector = pygame.math.Vector2(1,0)
+        angle = -dist.angle_to(rightvector)
+        #print(angle)
+        #if self.angle == round(angle, 0):
+        self.move = dist
+        self.set_angle(angle)
+        #else:
+        #    self.move = pygame.math.Vector2(0,0)
+        #    self.rotate_to(angle*seconds)   
+        if self.selected:
+            pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
+
+
 class Catapult(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -316,19 +350,12 @@ class Catapult(VectorSprite):
             
             
     def create_image(self):
-        self.image=Viewer.images["catapult1_selected"]
+        self.image=Viewer.images["catapult1"]
         
         self.image0 = self.image.copy()
-        self.image0.set_colorkey((0,0,0))
-        self.image0.convert_alpha()
+       # self.image0.set_colorkey((0,0,0))
+       # self.image0.convert_alpha()
         self.rect = self.image.get_rect()
-        
-    def select_image(self, name):
-        self.image = Viewer.images[name]
-        self.image0 = self.image.copy()
-        x,y = self.rect.center
-        self.rect = self.image.get_rect()
-        self.rect.center = x,y
 
     def kill(self):
         Explosion(posvector=self.pos, red=200, red_delta=25, minsparks=500, maxsparks=600, maxlifetime=7)
@@ -355,6 +382,8 @@ class Catapult(VectorSprite):
         #else:
         #    self.move = pygame.math.Vector2(0,0)
         #    self.rotate_to(angle*seconds)   
+        if self.selected:
+            pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
 
 
 
@@ -572,11 +601,14 @@ class Viewer(object):
         
     
     def load_sprites(self):
-         """ all sprites that can rotate MUST look to the right. Edit Image files manually if necessary!"""
+            """ all sprites that can rotate MUST look to the right. Edit Image files manually if necessary!"""
             print("loading sprites from 'data' folder....")
             Viewer.images["catapult1"]= pygame.image.load(
                  os.path.join("data", "catapultC1.png")).convert_alpha()
-            self.create_selected("catapult1")
+            
+            ##self.create_selected("catapult1")
+            
+            Viewer.images["ballista1"] = pygame.image.load(os.path.join("data", "ballistaB1.png"))
             # --- scalieren ---
             #for name in Viewer.images:
             #    if name == "bossrocket":
@@ -593,8 +625,12 @@ class Viewer(object):
         
         VectorSprite.groups = self.allgroup
         Flytext.groups = self.allgroup, self.flytextgroup
+        #Catapult.groups = self.allgroup,
         #self.player1 =  Player(imagename="player1", warp_on_edge=True, pos=pygame.math.Vector2(Viewer.width/2-100,-Viewer.height/2))
         #self.player2 =  Player(imagename="player2", angle=180,warp_on_edge=True, pos=pygame.math.Vector2(Viewer.width/2+100,-Viewer.height/2))
+        self.b1 = Ballista()
+        self.c1 = Catapult()
+   
    
     def menu_run(self):
         running = True
@@ -697,12 +733,11 @@ class Viewer(object):
             # --- cursor ---
             write(self.screen, text="-->", x=100, y=100+ Viewer.cursor * 20, color=(255,255,255))
                         
-            
-           
                 
             # -------- next frame -------------
             pygame.display.flip()
         #----------------------------------------------------- 
+    
     def run(self):
         """The mainloop"""
         
@@ -729,6 +764,12 @@ class Viewer(object):
                     if event.key == pygame.K_c:
                         # ---spawns a catapult ---
                         Catapult(selected=True, pos = mouseVector())
+                    #if event.key == pygame.K_RIGHT:
+                    #    self.b1.set_angle(self.b1.angle + 5)
+                    #    self.c1.set_angle(self.c1.angle + 5)
+                    if event.key == pygame.K_s:
+                        self.b1.selected = not self.b1.selected
+                        self.c1.selected = not self.c1.selected 
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
             # ------- movement keys for player1 -------
