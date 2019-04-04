@@ -302,7 +302,6 @@ class VectorSprite(pygame.sprite.Sprite):
             elif self.warp_on_edge:
                 self.pos.y = 0
 
-
 class Javelin(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -310,13 +309,43 @@ class Javelin(VectorSprite):
  
         
     def create_image(self):
-        self.image = pygame.surface.Surface((80,20))
-        self.image.fill((128,0,0))
-        self.image.set_colorkey((0,0,0))
-        self.image.convert_alpha()
+        self.image=Viewer.images["javelin"]
         self.image0 = self.image.copy()
         self.rect = self.image.get_rect()
 
+class Goblinwarmachine(VectorSprite):    
+    def _overwrite_parameters(self):
+        self.speed = 10
+    
+    def create_image(self):
+        self.image=Viewer.images["goblinwarmachine"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
+    def update(self,seconds):
+        VectorSprite.update(self,seconds)
+        # - - - - - - go to mouse cursor ------ #
+        target = mouseVector()
+        dist =target - self.pos
+        try:
+            dist.normalize_ip() #schrupmft ihn zur länge 1
+        except:
+            print("i could not normalize", dist)
+            return
+        dist *= self.speed  
+        rightvector = pygame.math.Vector2(1,0)
+        angle = -dist.angle_to(rightvector)
+        #print(angle)
+        #if self.angle == round(angle, 0):
+        if self.selected:
+            self.move = dist
+            self.set_angle(angle)
+            pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
+            
+            
+            
+            
+            
 class Ballista(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -353,6 +382,8 @@ class Ballista(VectorSprite):
             m.rotate_ip(self.angle)
             m *= 150    
             Javelin(pos=p,move=m, angle= self.angle, bossnumber=self.number)
+
+
 
 class Catapult(VectorSprite):
     
@@ -399,6 +430,7 @@ class Catapult(VectorSprite):
             self.move = dist
             self.set_angle(angle)
             pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
+
 
 
 
@@ -624,6 +656,8 @@ class Viewer(object):
             ##self.create_selected("catapult1")
             
             Viewer.images["ballista1"] = pygame.image.load(os.path.join("data", "ballistaB1.png"))
+            Viewer.images["goblinwarmachine"] = pygame.image.load(os.path.join("data", "goblinwarmachine.png"))
+            Viewer.images["javelin"] = pygame.image.load(os.path.join("data", "Javelin.png"))
             # --- scalieren ---
             #for name in Viewer.images:
             #    if name == "bossrocket":
@@ -645,6 +679,7 @@ class Viewer(object):
         #self.player2 =  Player(imagename="player2", angle=180,warp_on_edge=True, pos=pygame.math.Vector2(Viewer.width/2+100,-Viewer.height/2))
         self.b1 = Ballista()
         self.c1 = Catapult()
+        self.g1 = Goblinwarmachine()
    
    
     def menu_run(self):
@@ -785,6 +820,7 @@ class Viewer(object):
                     if event.key == pygame.K_s:
                         self.b1.selected = not self.b1.selected
                         self.c1.selected = not self.c1.selected 
+                        self.g1.selected = not self.g1.selected
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
             # ------- movement keys for player1 -------
