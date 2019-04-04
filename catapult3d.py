@@ -302,6 +302,21 @@ class VectorSprite(pygame.sprite.Sprite):
             elif self.warp_on_edge:
                 self.pos.y = 0
 
+
+class Javelin(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        self.speed = 150
+ 
+        
+    def create_image(self):
+        self.image = pygame.surface.Surface((80,20))
+        self.image.fill((128,0,0))
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+
 class Ballista(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -327,14 +342,17 @@ class Ballista(VectorSprite):
         angle = -dist.angle_to(rightvector)
         #print(angle)
         #if self.angle == round(angle, 0):
-        self.move = dist
-        self.set_angle(angle)
-        #else:
-        #    self.move = pygame.math.Vector2(0,0)
-        #    self.rotate_to(angle*seconds)   
         if self.selected:
+            self.move = dist
+            self.set_angle(angle)
             pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
-
+        # ------ fire sometimes ----
+        if random.random() < 0.01:
+            p = pygame.math.Vector2(self.pos.x, self.pos.y)
+            m = pygame.math.Vector2(1,0)
+            m.rotate_ip(self.angle)
+            m *= 150    
+            Javelin(pos=p,move=m, angle= self.angle, bossnumber=self.number)
 
 class Catapult(VectorSprite):
     
@@ -377,12 +395,9 @@ class Catapult(VectorSprite):
         angle = -dist.angle_to(rightvector)
         #print(angle)
         #if self.angle == round(angle, 0):
-        self.move = dist
-        self.set_angle(angle)
-        #else:
-        #    self.move = pygame.math.Vector2(0,0)
-        #    self.rotate_to(angle*seconds)   
         if self.selected:
+            self.move = dist
+            self.set_angle(angle)
             pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
 
 
