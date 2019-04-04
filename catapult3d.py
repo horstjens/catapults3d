@@ -345,7 +345,26 @@ class Goblinwarmachine(VectorSprite):
             
             
             
-            
+class Tent(VectorSprite):
+    
+     def _overwrite_parameters(self):
+         self.spawntime = 2.5 # seconds
+         self.spawn = 0 
+    
+     def create_image(self):
+        self.image=Viewer.images["tent"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+     
+     def update(self,seconds):
+         VectorSprite.update(self,seconds)
+         self.spawn += seconds
+         if self.spawn > self.spawntime:
+             # new catapult!
+             Catapult(selected=True, pos=pygame.math.Vector2(self.pos.x, self.pos.y))
+             self.spawn = 0
+             
+                
 class Ballista(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -658,6 +677,7 @@ class Viewer(object):
             Viewer.images["ballista1"] = pygame.image.load(os.path.join("data", "ballistaB1.png"))
             Viewer.images["goblinwarmachine"] = pygame.image.load(os.path.join("data", "goblinwarmachine.png"))
             Viewer.images["javelin"] = pygame.image.load(os.path.join("data", "Javelin.png"))
+            Viewer.images["tent"] = pygame.image.load(os.path.join("data", "field mustering tent.png"))
             # --- scalieren ---
             #for name in Viewer.images:
             #    if name == "bossrocket":
@@ -814,6 +834,9 @@ class Viewer(object):
                     if event.key == pygame.K_c:
                         # ---spawns a catapult ---
                         Catapult(selected=True, pos = mouseVector())
+                    if event.key == pygame.K_x:
+                        Tent(pos = mouseVector())
+                        
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
