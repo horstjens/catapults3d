@@ -468,7 +468,37 @@ class Ballista(VectorSprite):
             Javelin(pos=p,move=m, angle= self.angle, bossnumber=self.number)
 
 
-
+class VK(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        
+        self.speed = 20
+        
+    def create_image(self):
+        self.image=Viewer.images["VK"]
+        
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
+    def kill(self):
+        Explosion(posvector=self.pos, red=200, red_delta=25, minsparks=500, maxsparks=600, maxlifetime=7)
+        VectorSprite.kill(self)
+   
+   
+    def update(self,seconds):
+        VectorSprite.update(self,seconds)
+        # - - - - - - go to mouse cursor ------ #
+        target = mouseVector()
+        dist =target - self.pos
+        try:
+            dist.normalize_ip() #schrupmft ihn zur länge 1
+        except:
+            print("i could not normalize", dist)
+            return
+        dist *= self.speed  
+        rightvector = pygame.math.Vector2(1,0)
+        angle = -dist.angle_to(rightvector)      
+        
 class Catapult(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -753,6 +783,7 @@ class Viewer(object):
             Viewer.images["tent"] = pygame.image.load(os.path.join("data", "field mustering tent.png"))
             Viewer.images["ghosttent"] = pygame.image.load(os.path.join("data", "ghosttransparent.png"))
             Viewer.images["ghosttentx"] = pygame.image.load(os.path.join("data", "ghosttransparentx.png"))
+            Viewer.images["VK"] = pygame.image.load(os.path.join("data", "VK3601h.png"))
             # --- scalieren ---
             for name in Viewer.images:
                 if name == "rock":
@@ -926,6 +957,8 @@ class Viewer(object):
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
+                    if event.key == pygame.K_t:
+                        VK(pos = mouseVector())
                     if event.key == pygame.K_x:
                         if self.ghosttentlimiter < 1:
                             self.g = Ghosttent()
