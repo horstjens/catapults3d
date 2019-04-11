@@ -302,10 +302,46 @@ class VectorSprite(pygame.sprite.Sprite):
             elif self.warp_on_edge:
                 self.pos.y = 0
 
-class Javelin(VectorSprite):
+class Swordgoblin(VectorSprite):
+    
+    def new_move(self):
+        self.angle = random.randint(0,360)
+        self.speed = random.randint(40,140)
+        self.move = pygame.math.Vector2(self.speed, 0)
+        self.move.rotate_ip(self.angle)
+        self.set_angle(self.angle)
+    
+    def _overwrite_parameters(self):
+        #self.speed = 75
+        #self.new_move()
+        self.bounce_on_edge = True
+        
+    def create_image(self):
+        self.image=Viewer.images["swordgoblin"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+        
+    def update(self,seconds):
+        VectorSprite.update(self,seconds)
+        if random.random() < 0.002:
+            self.new_move()
+    
+class Rock(VectorSprite):
     
     def _overwrite_parameters(self):
         self.speed = 150
+        
+ 
+        
+    def create_image(self):
+        self.image=Viewer.images["rock"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+
+class Javelin(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        self.speed = 200
  
         
     def create_image(self):
@@ -341,30 +377,17 @@ class Goblinwarmachine(VectorSprite):
             self.move = dist
             self.set_angle(angle)
             pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
+        if random.random() < 0.01:
+            p = pygame.math.Vector2(self.pos.x, self.pos.y)
+            m = pygame.math.Vector2(1,0)
+            m.rotate_ip(self.angle)
+            m *= 150    
+            Rock(pos=p,move=m, angle= self.angle, bossnumber=self.number)
             
             
             
             
-class Tent(VectorSprite):
-    
-     def _overwrite_parameters(self):
-         self.spawntime = 2.5 # seconds
-         self.spawn = 0 
-    
-     def create_image(self):
-        self.image=Viewer.images["tent"]
-        self.image0 = self.image.copy()
-        self.rect = self.image.get_rect()
-     
-     def update(self,seconds):
-         VectorSprite.update(self,seconds)
-         self.spawn += seconds
-         if self.spawn > self.spawntime:
-             # new catapult!
-             Catapult(selected=True, pos=pygame.math.Vector2(self.pos.x, self.pos.y))
-             self.spawn = 0
-             
-                
+            
 class Ballista(VectorSprite):
     
     def _overwrite_parameters(self):
@@ -449,6 +472,12 @@ class Catapult(VectorSprite):
             self.move = dist
             self.set_angle(angle)
             pygame.draw.rect(self.image, (0,200,0), (0,0,self.rect.width, self.rect.height),1)
+        if random.random() < 0.01:
+            p = pygame.math.Vector2(self.pos.x, self.pos.y)
+            m = pygame.math.Vector2(1,0)
+            m.rotate_ip(self.angle)
+            m *= 150    
+            Rock(pos=p,move=m, angle= self.angle, bossnumber=self.number)
 
 
 
@@ -677,12 +706,13 @@ class Viewer(object):
             Viewer.images["ballista1"] = pygame.image.load(os.path.join("data", "ballistaB1.png"))
             Viewer.images["goblinwarmachine"] = pygame.image.load(os.path.join("data", "goblinwarmachine.png"))
             Viewer.images["javelin"] = pygame.image.load(os.path.join("data", "Javelin.png"))
-            Viewer.images["tent"] = pygame.image.load(os.path.join("data", "field mustering tent.png"))
+            Viewer.images["rock"] = pygame.image.load(os.path.join("data", "catapultrock.png"))
+            Viewer.images["swordgoblin"] = pygame.image.load(os.path.join("data", "swordgoblin.png"))
             # --- scalieren ---
-            #for name in Viewer.images:
-            #    if name == "bossrocket":
-            #        Viewer.images[name] = pygame.transform.scale(
-            #                        Viewer.images[name], (60, 60))
+            for name in Viewer.images:
+                if name == "rock":
+                    Viewer.images[name] = pygame.transform.scale(
+                                    Viewer.images[name], (15, 15))
             
      
     def prepare_sprites(self):
@@ -831,12 +861,10 @@ class Viewer(object):
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
+                    
                     if event.key == pygame.K_c:
                         # ---spawns a catapult ---
                         Catapult(selected=True, pos = mouseVector())
-                    if event.key == pygame.K_x:
-                        Tent(pos = mouseVector())
-                        
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
@@ -889,7 +917,9 @@ class Viewer(object):
             # =========== delete everything on screen ==============
             self.screen.blit(self.background, (0, 0))
                        
-            
+            #goblin spawn
+            if random.random() < 0.01:
+                Swordgoblin(pos = mouseVector())
             ##self.paint_world()
                        
             # write text below sprites
