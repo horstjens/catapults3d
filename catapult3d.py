@@ -894,9 +894,8 @@ class Viewer(object):
         self.menu_run()
         pygame.mouse.set_visible(True)
         oldleft, oldmiddle, oldright  = False, False, False
-        Tent(pos = pygame.math.Vector2(200, -100))
-        Tent(pos = pygame.math.Vector2(600, -400))
-        
+        self.buildtent = False
+        self.tentcount = 0
         while running:
             #pygame.display.set_caption("player1 hp: {} player2 hp: {}".format(
             #                     self.player1.hitpoints, self.player2.hitpoints))
@@ -921,7 +920,13 @@ class Viewer(object):
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
                     if event.key == pygame.K_x:
-                        Ghosttent()
+                        if self.tentcount < 1:
+                            self.g = Ghosttent()
+                            self.buildtent = True
+                            self.tentcount +=1
+                        else:
+                            pass
+                            
                         #Tent(pos = mouseVector())
                     if event.key == pygame.K_s:
                         self.b1.selected = not self.b1.selected
@@ -936,6 +941,14 @@ class Viewer(object):
             
             # ------ mouse handler ------
             left,middle,right = pygame.mouse.get_pressed()
+            if self.buildtent:
+                if oldleft and not left:
+                    if self.g.ok:
+                        Tent(pos = pygame.math.Vector2(g.rect.centerx, -g.rect.centery))
+                        self.g.kill()
+                        self.buildtent = False
+                        self.tentcount -= 1
+                    
             oldleft, oldmiddle, oldright = left, middle, right
 
            
@@ -984,7 +997,7 @@ class Viewer(object):
             # ----- collision detection between Ghosttent and Tent---
             for g in self.ghosttentgroup:
                 g.ok = True
-                crashgroup = pygame.sprite.spritecollide(g,self.tentgroup, False, pygame.sprite.collide_rect)
+                crashgroup = pygame.sprite.spritecollide(g,self.tentgroup, False, pygame.sprite.collide_mask)
                 for t in crashgroup:
                     g.ok = False    
             
