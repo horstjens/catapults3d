@@ -301,7 +301,27 @@ class VectorSprite(pygame.sprite.Sprite):
                 self.move.y *= -1
             elif self.warp_on_edge:
                 self.pos.y = 0
-
+                
+class Tent(VectorSprite):
+    
+     def _overwrite_parameters(self):
+         self.spawntime = 2.5 # seconds
+         self.spawn = 0 
+    
+     def create_image(self):
+        self.image=Viewer.images["tent"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+     
+     def update(self,seconds):
+         VectorSprite.update(self,seconds)
+         self.spawn += seconds
+         if self.spawn > self.spawntime:
+             # new catapult!
+             Catapult(selected=True, pos=pygame.math.Vector2(self.pos.x, self.pos.y))
+             self.spawn = 0
+             
+            
 class Swordgoblin(VectorSprite):
     
     def new_move(self):
