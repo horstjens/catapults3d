@@ -916,6 +916,12 @@ class Viewer(object):
                     if event.key == pygame.K_c:
                         # ---spawns a catapult ---
                         Catapult(selected=True, pos = mouseVector())
+                        
+                    if event.key == pygame.K_z:
+                        # cancel build
+                        if self.buildtent:
+                            self.buildtent = False
+                            self.g.kill()
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
