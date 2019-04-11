@@ -728,6 +728,7 @@ class Viewer(object):
             Viewer.images["javelin"] = pygame.image.load(os.path.join("data", "Javelin.png"))
             Viewer.images["rock"] = pygame.image.load(os.path.join("data", "catapultrock.png"))
             Viewer.images["swordgoblin"] = pygame.image.load(os.path.join("data", "swordgoblin.png"))
+            Viewer.images["tent"] = pygame.image.load(os.path.join("data", "field mustering tent.png"))
             # --- scalieren ---
             for name in Viewer.images:
                 if name == "rock":
