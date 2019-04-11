@@ -922,6 +922,7 @@ class Viewer(object):
                         if self.buildtent:
                             self.buildtent = False
                             self.g.kill()
+                            self.ghosttentlimiter -= 1
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
