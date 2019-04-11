@@ -317,11 +317,33 @@ class Tent(VectorSprite):
          VectorSprite.update(self,seconds)
          self.spawn += seconds
          if self.spawn > self.spawntime:
+             pass
              # new catapult!
-             Catapult(selected=True, pos=pygame.math.Vector2(self.pos.x, self.pos.y))
-             self.spawn = 0
+             #Catapult(selected=True, pos=pygame.math.Vector2(self.pos.x, self.pos.y))
+             #self.spawn = 0
              
+class Ghosttent(VectorSprite):
+    
+    def _overwrite_parameters(self):
+        self.ok = True
+        
+    def create_image(self):
+        if self.ok:
+            self.image = Viewer.images["ghosttent"]
             
+        else:
+            self.image = Viewer.images["ghosttentx"]
+        self.image0 = self.image.copy()
+        self.rect = self.image.get_rect()
+    
+    def update(self, seconds):
+        #VectorSprite.update(self, seconds)
+        #oldcenter = self.rect.center
+        self.create_image()
+        #self.rect.center = oldcenter
+        self.rect.center = pygame.mouse.get_pos()
+        
+        
 class Swordgoblin(VectorSprite):
     
     def new_move(self):
@@ -729,6 +751,8 @@ class Viewer(object):
             Viewer.images["rock"] = pygame.image.load(os.path.join("data", "catapultrock.png"))
             Viewer.images["swordgoblin"] = pygame.image.load(os.path.join("data", "swordgoblin.png"))
             Viewer.images["tent"] = pygame.image.load(os.path.join("data", "field mustering tent.png"))
+            Viewer.images["ghosttent"] = pygame.image.load(os.path.join("data", "ghosttransparent.png"))
+            Viewer.images["ghosttentx"] = pygame.image.load(os.path.join("data", "ghosttransparentx.png"))
             # --- scalieren ---
             for name in Viewer.images:
                 if name == "rock":
@@ -740,9 +764,13 @@ class Viewer(object):
         """painting on the surface and create sprites"""
         self.load_sprites()
         self.allgroup =  pygame.sprite.LayeredUpdates() # for drawing
+        self.tentgroup = pygame.sprite.Group()
+        self.ghosttentgroup = pygame.sprite.Group()
         self.flytextgroup = pygame.sprite.Group()
         #self.mousegroup = pygame.sprite.Group()
         
+        Ghosttent.groups = self.allgroup, self.ghosttentgroup
+        Tent.groups = self.allgroup, self.tentgroup
         VectorSprite.groups = self.allgroup
         Flytext.groups = self.allgroup, self.flytextgroup
         #Catapult.groups = self.allgroup,
@@ -866,6 +894,9 @@ class Viewer(object):
         self.menu_run()
         pygame.mouse.set_visible(True)
         oldleft, oldmiddle, oldright  = False, False, False
+        Tent(pos = pygame.math.Vector2(200, -100))
+        Tent(pos = pygame.math.Vector2(600, -400))
+        
         while running:
             #pygame.display.set_caption("player1 hp: {} player2 hp: {}".format(
             #                     self.player1.hitpoints, self.player2.hitpoints))
@@ -890,7 +921,8 @@ class Viewer(object):
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
                     if event.key == pygame.K_x:
-                        Tent(pos = mouseVector())
+                        Ghosttent()
+                        #Tent(pos = mouseVector())
                     if event.key == pygame.K_s:
                         self.b1.selected = not self.b1.selected
                         self.c1.selected = not self.c1.selected 
@@ -949,14 +981,12 @@ class Viewer(object):
             write(self.screen, "FPS: {:8.3}".format(
                 self.clock.get_fps() ), x=Viewer.width-200, y=10, color=(200,200,200))
             
-            # ----- collision detection between player and PowerUp---
-            #for p in self.playergroup:
-            #    crashgroup=pygame.sprite.spritecollide(p,
-            #               self.powerupgroup, False, 
-            #               pygame.sprite.collide_mask)
-            #    for o in crashgroup:
-            #            Explosion(o.pos, red=128, green=0, blue=128)
-            #            o.kill()
+            # ----- collision detection between Ghosttent and Tent---
+            for g in self.ghosttentgroup:
+                g.ok = True
+                crashgroup = pygame.sprite.spritecollide(g,self.tentgroup, False, pygame.sprite.collide_rect)
+                for t in crashgroup:
+                    g.ok = False    
             
                    
             # ================ UPDATE all sprites =====================
