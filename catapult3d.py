@@ -888,6 +888,8 @@ class Viewer(object):
                     #if event.key == pygame.K_RIGHT:
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
+                    if event.key == pygame.K_x:
+                        Tent(pos = mouseVector())
                     if event.key == pygame.K_s:
                         self.b1.selected = not self.b1.selected
                         self.c1.selected = not self.c1.selected 
