@@ -895,7 +895,7 @@ class Viewer(object):
         pygame.mouse.set_visible(True)
         oldleft, oldmiddle, oldright  = False, False, False
         self.buildtent = False
-        self.tentcount = 0
+        self.ghosttentlimiter = 0
         while running:
             #pygame.display.set_caption("player1 hp: {} player2 hp: {}".format(
             #                     self.player1.hitpoints, self.player2.hitpoints))
@@ -920,10 +920,10 @@ class Viewer(object):
                     #    self.b1.set_angle(self.b1.angle + 5)
                     #    self.c1.set_angle(self.c1.angle + 5)
                     if event.key == pygame.K_x:
-                        if self.tentcount < 1:
+                        if self.ghosttentlimiter < 1:
                             self.g = Ghosttent()
                             self.buildtent = True
-                            self.tentcount +=1
+                            self.ghosttentlimiter +=1
                         else:
                             pass
                             
@@ -947,7 +947,7 @@ class Viewer(object):
                         Tent(pos = pygame.math.Vector2(g.rect.centerx, -g.rect.centery))
                         self.g.kill()
                         self.buildtent = False
-                        self.tentcount -= 1
+                        self.ghosttentlimiter -= 1
                     
             oldleft, oldmiddle, oldright = left, middle, right
 
