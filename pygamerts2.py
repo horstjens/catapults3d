@@ -591,8 +591,11 @@ class Viewer(object):
         self.fps = fps
         self.playtime = 0.0
         self.rawmap = []
-        self.waterheight = ""
+        self.waterheight = 0
         self.tilesize = 32
+        self.world_offset_x = 0
+        self.world_offset_y = 0
+        self.world_zoom = 1
         # -- menu --
         # --- create screen resolution list ---
         li = ["back"]
@@ -881,15 +884,7 @@ class Viewer(object):
             pygame.display.flip()
         #----------------------------------------------------- 
     
-    def run(self):
-        """The mainloop"""
-        
-        running = True
-        self.menu_run()
-        pygame.mouse.set_visible(True)
-        oldleft, oldmiddle, oldright  = False, False, False
-        # --------- blitting map ------------
-        if self.rawmap != []:
+    def make_worldmap(self):
             print("generating map.....{} x {}".format(len(self.rawmap[1]), len(self.rawmap )))
             self.world = pygame.surface.Surface((len(self.rawmap[0])*self.tilesize, len(self.rawmap)*self.tilesize))
         
@@ -898,12 +893,24 @@ class Viewer(object):
                     if number == "\n":
                         continue
                     number = int(number)
-                    print("das ist die line", line)
+                    #print("das ist die line", line)
                     #print("tilesize", self.tilesize)
                     #Tile(pos=pygame.math.Vector2(x*self.tilesize, -y*self.tilesize), tilesize = self.tilesize, colorchar = char)
                     # number is a height value from 0-255
                     print("processing value of {} at pos x {} y {}".format(number, x, y))
                     pygame.draw.rect(self.world, (number,number,number), (x * self.tilesize, y * self.tilesize, self.tilesize, self.tilesize))
+            
+    
+    def run(self):
+        """The mainloop"""
+        
+        running = True
+        self.menu_run()
+        pygame.mouse.set_visible(True)
+        oldleft, oldmiddle, oldright  = False, False, False
+        # --------- blitting rawmap to world ------------
+        if self.rawmap != []:
+            self.make_worldmap()
                     
                     
         while running:
@@ -936,8 +943,26 @@ class Viewer(object):
                         m = pygame.math.Vector2(200,0)
                         m.rotate_ip(self.c1.angle)
                         Cannonball(pos=p, move=m, bossnumber= self.c1.number)
+                    if event.key == pygame.K_PLUS:
+                        #self.world_zoom += 1
+                        self.tilesize *= 2
+                        self.make_worldmap()
+                    if event.key == pygame.K_MINUS:
+                        self.tilesize /= 2
+                        self.make_worldmap()
             # ------------ pressed keys ------
             pressed_keys = pygame.key.get_pressed()
+            
+            # --------------- map scrolling ------------
+            if pressed_keys[pygame.K_UP]:
+                self.world_offset_y += -1
+            if pressed_keys[pygame.K_DOWN]: 
+                self.world_offset_y += 1
+            if pressed_keys[pygame.K_LEFT]:
+                self.world_offset_x += -1
+            if pressed_keys[pygame.K_RIGHT]: 
+                self.world_offset_x += 1
+            
             # ------- movement keys for player1 -------
             
             #if pressed_keys[pygame.K_l]:
@@ -979,7 +1004,7 @@ class Viewer(object):
                 
               
             # =========== delete everything on screen ==============
-            self.screen.blit(self.world, (0, 0))
+            self.screen.blit(self.world, (self.world_offset_x,self.world_offset_y ))
                        
             
             ##self.paint_world()
