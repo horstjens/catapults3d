@@ -508,25 +508,6 @@ class Explosion():
                   color=(red,green,blue), kill_on_edge = True)
 
 
-class World():
-    
-    tiles_x = 140
-    tiles_y = 90   
-    
-    
-    def __init__(self):
-        self.terrain = []
-        h = 100
-        for y in range(self.tiles_y):
-            line = []
-            for x in range(self.tiles_x):
-                height = random.randint(0,255)
-                height = max(0,height)
-                height = min(255,height)
-                line.append(height)
-            self.terrain.append(line)
-            
-   
             
 
         
@@ -641,7 +622,7 @@ class Viewer(object):
         self.prepare_sprites()
         self.loadbackground()
         self.load_sounds()
-        self.world = World()
+        ##self.world = World()
         #print(self.world)
         
         
@@ -886,8 +867,9 @@ class Viewer(object):
     
     def make_worldmap(self):
             print("generating map.....{} x {}".format(len(self.rawmap[1]), len(self.rawmap )))
+            self.screen.fill((255,128,128))
             self.world = pygame.surface.Surface((len(self.rawmap[0])*self.tilesize, len(self.rawmap)*self.tilesize))
-        
+            
             for y, line in enumerate(self.rawmap):
                 for x, number in enumerate(line):
                     if number == "\n":
@@ -898,7 +880,19 @@ class Viewer(object):
                     #Tile(pos=pygame.math.Vector2(x*self.tilesize, -y*self.tilesize), tilesize = self.tilesize, colorchar = char)
                     # number is a height value from 0-255
                     print("processing value of {} at pos x {} y {}".format(number, x, y))
-                    pygame.draw.rect(self.world, (number,number,number), (x * self.tilesize, y * self.tilesize, self.tilesize, self.tilesize))
+                    # water = blue
+                    if number <= self.waterheight:
+                        color = (0,0,255) # blue
+                    elif number < 64:
+                        color = (number, number, number)
+                    elif number < 128:
+                        color = (number, number+60, number+50) # brown
+                    elif number < 215:
+                        color = (44 + int(number/3), 255, 44+ int(number/3)) # green
+                    else:
+                        color = (255, number, 255)
+                        
+                    pygame.draw.rect(self.world, color, (x * self.tilesize, y * self.tilesize, self.tilesize, self.tilesize))
             
     
     def run(self):
@@ -975,6 +969,15 @@ class Viewer(object):
                 self.world_offset_x += 1
             if pressed_keys[pygame.K_RIGHT]: 
                 self.world_offset_x += -1
+            if pressed_keys[pygame.K_PAGEUP]:
+                self.waterheight += 5
+                self.waterheight = min(255, self.waterheight)
+                self.make_worldmap()
+                
+            if pressed_keys[pygame.K_PAGEDOWN]:
+                self.waterheight -= 5
+                self.waterheight = max(0, self.waterheight)
+                self.make_worldmap()
             
             # ------- movement keys for player1 -------
             
@@ -1017,14 +1020,15 @@ class Viewer(object):
                 
               
             # =========== delete everything on screen ==============
+            self.screen.fill((0,0,0))
             self.screen.blit(self.world, (self.world_offset_x,self.world_offset_y ))
                        
             
             ##self.paint_world()
                        
             # write text below sprites
-            write(self.screen, "FPS: {:8.3}".format(
-                self.clock.get_fps() ), x=Viewer.width-200, y=10, color=(200,200,200))
+            write(self.screen, "FPS: {:8.3} water: {}".format(
+                self.clock.get_fps(), self.waterheight ), x=Viewer.width-400, y=10, color=(100,0,200))
             
             # ----- collision detection between player and PowerUp---
             #for p in self.playergroup:
