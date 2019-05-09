@@ -955,13 +955,13 @@ class Viewer(object):
             
             # --------------- map scrolling ------------
             if pressed_keys[pygame.K_UP]:
-                self.world_offset_y += -1
-            if pressed_keys[pygame.K_DOWN]: 
                 self.world_offset_y += 1
+            if pressed_keys[pygame.K_DOWN]: 
+                self.world_offset_y += -1
             if pressed_keys[pygame.K_LEFT]:
-                self.world_offset_x += -1
-            if pressed_keys[pygame.K_RIGHT]: 
                 self.world_offset_x += 1
+            if pressed_keys[pygame.K_RIGHT]: 
+                self.world_offset_x += -1
             
             # ------- movement keys for player1 -------
             
