@@ -925,7 +925,20 @@ class Viewer(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                # ----- mouse wheel -----
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                     if event.button == 4:
+                         self.tilesize += 1
+                         self.make_worldmap()
+                     elif event.button == 5:
+                         self.tilesize -= 1
+                         self.make_worldmap()
+                
+                
                 # ------- pressed and released key ------
+                
+                
+                
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
